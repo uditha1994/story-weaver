@@ -102,6 +102,74 @@
                 </form>
             </div>
         </section>
+
+        <!-- explore section -->
+        <section id="exploreSection" class="section">
+            <div class="explore-container">
+                <h2 class="section-title">Explore Stories</h2>
+                <div class="filter-controls">
+                    <select id="genreFilter">
+                        <option value="">All Genres</option>
+                        <option value="fantacy">Fantacy</option>
+                        <option value="sci-fi">Science Fiction</option>
+                        <option value="mystery">Mystery</option>
+                        <option value="romance">Romance</option>
+                        <option value="horror">Horror</option>
+                        <option value="drama">Drama</option>
+                        <option value="adventure">Adventure</option>
+                    </select>
+                    <select id="sortFilter">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="popular">Most Popular</option>
+                    </select>
+                </div>
+                <div id="storiesGrid" class="stories-grid">
+                    <!-- stories will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- story render modal -->
+        <div class="modal" id="storyModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 id="modalStoryTitle">Title</h3>
+                    <button class="close-btn"><i class="fas fa-times"></i></button>
+                </div>
+                <div class="modal-body">
+                    <div class="story-info">
+                        <span class="story-genre" id="modalStoryGenre">Horrar</span>
+                        <span class="story-author" id="modalStoryAuthor">Uditha</span>
+                        <span class="story-date" id="modalStoryDate">2022-09-07</span>
+                    </div>
+                    <div class="story-chapters" id="storyChapters">
+                        <!-- chapters will be load here -->
+                    </div>
+                    <div class="contribution-section">
+                        <h4>Continue the Story</h4>
+                        <p class="promt-text" id="currentPrompt">cdscdcdsc</p>
+                        <form id="contributionForm" class="contribution-form">
+                            <div class="form-group">
+                                <label for="contributorName">Your Name</label>
+                                <input type="text" id="contributorName" placeholder="Enter your name..." required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contributionText">Your Contribution</label>
+                                <textarea id="contributionText" placeholder="Continue the story..." required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="nextPrompt">Next Prompt (Optional)</label>
+                                <input type="text" id="nextPrompt" placeholder="What should happen next?">
+                            </div>
+                            <button class="submit-btn" type="submit">
+                                <i class="fas fa-plus"></i> Add Chapter
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Loading spinner -->
@@ -109,6 +177,9 @@
         <div class="spinner"></div>
         <p>Loading...</p>
     </div>
+
+    <!-- Toast notifications -->
+    <div id="toast" class="toast"></div>
 
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
