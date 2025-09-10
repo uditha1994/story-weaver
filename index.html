@@ -5,10 +5,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StoryWeaver | Simple Story Telling App</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 
 <body>
+    <!-- navigation header -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <h1 class="nav-logo">
+                <i class="fas fa-feather-alt"></i>
+                StoryWeaver
+            </h1>
+            <div class="nav-buttons">
+                <button class="nav-btn" id="homeBtn" active>
+                    <i class="fas fa-home"></i> Home
+                </button>
+                <button class="nav-btn" id="createBtn">
+                    <i class="fas fa-plus"></i> Create
+                </button>
+                <button class="nav-btn" id="exoloreBtn">
+                    <i class="fas fa-compass"></i> Explore
+                </button>
+            </div>
+        </div>
+    </nav>
 
+    <!-- Main container -->
+    <div class="container">
+        <!-- Home section -->
+        <section id="homeSection" class="section active">
+            <div class="hero">
+                <h2 class="hero-title">Welcome to StoryWeaver</h2>
+                <p class="hero-subtitle">Create, explore, and contribute
+                    to collaborative stories</p>
+
+                <div class="hero-stats">
+                    <div class="stat-card">
+                        <i class="fas fa-book"></i>
+                        <span id="totalStories">0</span>
+                        <p>Total Stories</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-users"></i>
+                        <span id="totalContributions">0</span>
+                        <p>Contributions</p>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-star"></i>
+                        <span id="featuredStories">0</span>
+                        <p>Featured Stories</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <script src="scripts/app.js"></script>
 </body>
 
 </html>
