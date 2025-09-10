@@ -113,6 +113,14 @@ body {
     }
 }
 
+.section-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 3rem;
+    color: var(--text-primary);
+}
+
 /* hero section */
 .hero {
     text-align: center;
@@ -123,8 +131,8 @@ body {
     font-size: 3rem;
     font-weight: 800;
     margin-bottom: 1rem;
-    background: linear-gradient(45deg, var(--primary-color), 
-    var(--secondary-color), var(--accent-color));
+    background: linear-gradient(45deg, var(--primary-color),
+            var(--secondary-color), var(--accent-color));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
@@ -179,7 +187,7 @@ body {
 
 /* loading spinner */
 .loading-spinner {
-    /* display: none; */
+    display: none;
     position: fixed;
     top: 0;
     left: 0;
@@ -220,4 +228,83 @@ body {
 .loading-spinner p {
     color: var(--text-secondary);
     font-size: 1rem;
+}
+
+/* Form styles */
+.create-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.story-form {
+    background: var(--surface-color);
+    padding: 2rem;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow);
+}
+
+.form-group {
+    margin-bottom: 1.1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--border-color);
+    border-radius: var(--border-radius);
+    background: var(--surface-color);
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: var(--trasition);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-group select option {
+    color: var(--text-primary);
+}
+
+.form-group textarea {
+    min-height: 120px;
+    color: var(--text-primary);
+    resize: vertical;
+    /* font-family: inherit; */
+}   
+
+.submit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+    color: white;
+    padding: 1rem 2rem;
+    border: none;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--trasition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: var(--border-radius);
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
 }
