@@ -43,12 +43,15 @@ class StoryManager {
             });
 
             showLoading(false);
+            showToast('Story created successfully!', 'success');
 
             return docRef.id;
 
         } catch (error) {
             showLoading(false);
             console.error('error in chapter: ', error);
+            const message = handleFirebaseError(error);
+            showToast(message, 'error');
             throw error;
         }
     }
@@ -93,11 +96,14 @@ class StoryManager {
             }
 
             showLoading(false);
+            showToast('Chapter added successfully', 'success');
 
             return chapterRef.id;
         } catch (error) {
             showLoading(false);
             console.error('Chapter error: ', error);
+            const message = handleFirebaseError(error);
+            showToast(message, 'error');
             throw error;
         }
     }
@@ -147,6 +153,8 @@ class StoryManager {
         } catch (error) {
             showLoading(false);
             console.error('Error in get Stories: ', error);
+            const message = handleFirebaseError(error);
+            showToast(message, 'error');
             return [];
         }
     }
@@ -198,6 +206,8 @@ class StoryManager {
 
         } catch (error) {
             showLoading(false);
+            const message = handleFirebaseError(error);
+            showToast(message, 'error');
             throw error;
         }
     }
@@ -233,6 +243,8 @@ class StoryManager {
 
         } catch (error) {
             showLoading(false);
+            const message = handleFirebaseError(error);
+            showToast(message, 'error');
             return [];
         }
     }
@@ -243,7 +255,8 @@ class StoryManager {
                 likes: firebase.firebase.FieldValue.increment(1)
             });
         } catch (error) {
-
+            const message = handleFirebaseError(error);
+            showToast(message, 'error');
         }
     }
 
@@ -256,7 +269,8 @@ class StoryManager {
                 type: 'story'
             });
         } catch (error) {
-
+            const message = handleFirebaseError(error);
+            showToast(message, 'error');
         }
     }
 
@@ -276,9 +290,9 @@ class StoryManager {
 
             //get featured stories count
             const featuredSnapshot = await storiesSnapshot
-            .where('featured', '==', true)
-            .where('status', '==', 'active')
-            .get();
+                .where('featured', '==', true)
+                .where('status', '==', 'active')
+                .get();
 
             const featuredStories = featuredSnapshot.size;
 
@@ -288,7 +302,13 @@ class StoryManager {
                 featuredStories
             };
         } catch (error) {
-
+            const message = handleFirebaseError(error);
+            showToast(message, 'error');
+            return {
+                totalStories: 0,
+                totalContributions: 0,
+                featuredStories: 0
+            };
         }
     }
 }
