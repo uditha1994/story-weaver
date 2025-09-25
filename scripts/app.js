@@ -77,7 +77,128 @@ class App {
         }
     }
 
-    
+    /**
+     * Handle contribution form submission
+     * @param {Event} e - form submit event
+     */
+    async handleContributionSubmission(e) {
+        e.preventDefault();
+
+        const contributorName = document.getElementById('contributorName').value.trim();
+        const contributionText = document.getElementById('contributionText').value.trim();
+        const nextPrompt = document.getElementById('nextPrompt').value.trim();
+
+        //validate contribution data
+        if (!contributionText || !contributorName) {
+            showToast('Please fill in all required fields', 'error');
+            return;
+        }
+
+        if (contributionText.length < 50) {
+            showToast('Contribution must be at least 50 characters long', 'error');
+            return;
+        }
+
+        try {
+            const currentStory = storyManager.currentStory;
+            const nextChapterNumber = currentStory.chapters.length + 1;
+
+            await storyManager.addChapter(currentStory.id, {
+                content: contributionText,
+                author: contributorName,
+                prompt: nextPrompt,
+                chapterNumber: nextChapterNumber
+            });
+
+            //reload the story to show the new chapter
+            await this.openStoryModal(currentStory.id);
+
+            //reset contribution form
+            document.getElementById('contributionForm').reset();
+
+        } catch (error) {
+            console.error('Error adding contribution:', error);
+            showToast(`Error adding contribution: ${error}`, 'error');
+        }
+    }
+
+    /**
+     * Open story modal and load story content
+     * @param {string} stroyId - Story id to load
+     */
+    async openStoryModal(storyId) {
+        try {
+            const story = await storyManager.getStoryWithChapters(storyId);
+            this.renderStoryModal(story);
+            this.showModal();
+        } catch (error) {
+            console.error('Error loading story: ', error);
+            showToast(`Error loading story: ${error}`, 'error');
+        }
+    }
+
+    async renderStoryModal(story) {
+        //update modal header
+        document.getElementById('modalStoryTitle').textContent = story.title;
+        document.getElementById('modalStoryGenre').textContent = story.genre;
+        document.getElementById('modalStoryAuthor').textContent = story.author;
+        document.getElementById('modalStoryDate').textContent =
+            story.createdAt ? story.createdAt.toLocaleDateString() : 'Unkown';
+
+        //Render chapter
+        const chaptersContainer = document.getElementById('storyChapters');
+        chaptersContainer.innerHTML = story.chapters.map(chapter =>
+            this.createChapterHtml(chapter)).join('');
+
+        //update current prompt
+        const lastChapter = story.chapters[story.chapter.length - 1];
+        const currentPromt = lastChapter?.prompt || 'Continue the story...';
+        document.getElementById('currentPrompt').textContent = currentPromt;
+
+    }
+
+    /**
+     * Create chapter HTML
+     * @param {Object} chapter - Chapter Object
+     * @returns {string} HTML string
+     */
+    createChapterHtml(chapter){
+        const createdDate = chapter.createdAt ? 
+        chapter.createdAt.toLocaleDateString() : 'Unkown';
+
+        return `
+            <div class="chapter">
+                <div class="chapter-header">
+                    <span class="chapter-number">Chapter ${chapter.chapterNumber}</span>
+                    <span class="chapter-author">By ${chapter.author} . ${createdDate}</span>
+                </div>
+                <div class="chapter-content">
+                    ${chapter.content}
+                </div>
+            </div>
+        `;
+    }
+
+    showModal(){
+        const modal = document.getElementById('storyModal');
+        modal.classList.add('active');
+        this.isModalOpen = true;
+
+        //prevent body scroll
+        document.body.style.overflow = 'hidden';
+
+        //focus management for accessibility
+        modal.querySelector('.close-btn').focus();
+    }
+
+    closeModal(){
+        const modal = document.getElementById('storyModal');
+        modal.classList.remove('active');
+        this.isModalOpen = false;
+
+        document.body.style.overflow = '';
+        storyManager.currentStory = null;
+    }
 
     /**
      * Reset the create story form
@@ -87,9 +208,9 @@ class App {
 
         //clear any validation style
         document.querySelectorAll('.form-group input, .form-group select, .form-group textarea')
-        .forEach(field => {
-            field.classList.remove('error');
-        });
+            .forEach(field => {
+                field.classList.remove('error');
+            });
 
     }
 
@@ -98,30 +219,30 @@ class App {
      * @param {Object} storyData - Story data to validate
      * @returns {boolean} True if valid 
      */
-    validateStoryData(storyData){
+    validateStoryData(storyData) {
         const errors = [];
 
-        if(!storyData.title || storyData.title.length < 3){
+        if (!storyData.title || storyData.title.length < 3) {
             errors.push('Title must be at least 3 characters long');
         }
 
-        if(!storyData.genre){
+        if (!storyData.genre) {
             errors.push('Please select a genre');
         }
 
-        if(!storyData.author || storyData.author.length < 2){
+        if (!storyData.author || storyData.author.length < 2) {
             errors.push('Author name must be at least 2 character long');
         }
 
-        if(!storyData.content || storyData.content.length < 100){
+        if (!storyData.content || storyData.content.length < 100) {
             errors.push('Story content must be at least 100 character long');
         }
 
-        if(!storyData.prompt || storyData.prompt.length < 10){
+        if (!storyData.prompt || storyData.prompt.length < 10) {
             errors.push('Story prompt must be at least 10 character long');
         }
 
-        if(errors.length > 0){
+        if (errors.length > 0) {
             showToast(errors.join(' '), 'error');
             return false;
         }
