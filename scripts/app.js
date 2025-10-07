@@ -51,6 +51,17 @@ class App {
             if (e.key === 'Escape' && this.isModalOpen) {
                 this.closeModal();
             }
+        });
+
+        //story card click event
+        document.addEventListener('click', (e) => {
+            const storyCard = e.target.closest('.story-card');
+            if (storyCard) {
+                const storyId = storyCard.getAttribute('data-story-id');
+                if (storyId) {
+                    this.openStoryModal(storyId);
+                }
+            }
         })
     }
 
@@ -71,6 +82,18 @@ class App {
         document.getElementById(`${sectionName}Btn`).classList.add('active');
 
         this.currentSection = sectionName;
+
+        switch (sectionName) {
+            case 'home':
+                this.loadDashboardStats();
+                break;
+            case 'explore':
+                this.loadStories();
+                break;
+            case 'create':
+                this.resetCreateForm();
+                break;
+        }
     }
 
     /**
@@ -177,7 +200,7 @@ class App {
             this.createChapterHtml(chapter)).join('');
 
         //update current prompt
-        const lastChapter = story.chapters[story.chapter.length - 1];
+        const lastChapter = story.chapters[story.chapters.length - 1];
         const currentPromt = lastChapter?.prompt || 'Continue the story...';
         document.getElementById('currentPrompt').textContent = currentPromt;
 
@@ -265,7 +288,7 @@ class App {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
 
-            const easeOutQuart = 1 - Map.pow(1 - progress, 4);
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
             const currentValue = Math.floor(startValue +
                 (targetValue - startValue) * easeOutQuart);
 
@@ -322,7 +345,7 @@ class App {
             : 'No preview available';
 
         return `
-            <div class="story-card" onClick="app.openStoryModal('${story.id}')">
+            <div class="story-card" data-story-id="${story.id}">
                 <div class="story-card-header">
                     <div>
                         <h3 class="story-title">${story.title}</h3>
@@ -396,7 +419,7 @@ class App {
      * Reset the create story form
      */
     resetCreateForm() {
-        document.getElementById('story-from').reset();
+        document.getElementById('storyForm').reset();
 
         //clear any validation style
         document.querySelectorAll('.form-group input, .form-group select, .form-group textarea')
@@ -449,9 +472,9 @@ class App {
 function showLoading(show) {
     const spinner = document.getElementById('loadingSpinner');
     if (show) {
-        spinner.classList.add = 'active';
+        spinner.classList.add('active');
     } else {
-        spinner.classList.remove = 'active';
+        spinner.classList.remove('active');
     }
 }
 
@@ -484,7 +507,7 @@ function formatDate(date) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    window.add = new App();
+    window.app = new App();
 });
 
 // export for global access

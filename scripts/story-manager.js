@@ -29,7 +29,7 @@ class StoryManager {
                 views: 0,
                 featured: false,
                 status: 'active'
-            }
+            };
 
             //add story to Firestore
             const docRef = await storiesCollection.add(story);
@@ -114,45 +114,92 @@ class StoryManager {
 
             let query = storiesCollection.where('status', '==', 'active');
 
-            if (filters.genre) {
-                query = query.where('genre', '==', filters.genre);
-            }
+            // Try the complex query first
+            try {
+                if (filters.genre) {
+                    query = query.where('genre', '==', filters.genre);
+                }
 
-            switch (filters.sort) {
-                case 'oldest':
-                    query = query.orderBy('createdAt', 'asc');
-                    break;
-                case 'popular':
-                    query = query.orderBy('views', 'desc');
-                    break;
-                case 'newest':
-                default:
-                    query = query.orderBy('createdAt', 'decs');
-            }
+                switch (filters.sort) {
+                    case 'oldest':
+                        query = query.orderBy('createdAt', 'asc');
+                        break;
+                    case 'popular':
+                        query = query.orderBy('views', 'desc');
+                        break;
+                    case 'newest':
+                    default:
+                        query = query.orderBy('createdAt', 'desc');
+                        break;
+                }
 
-            query = query.limit(50);
+                query = query.limit(50);
+                const snapshot = await query.get();
 
-            const snapshot = await query.get();
-            const stories = [];
-
-            snapshot.forEach(doc => {
-                const data = doc.data();
-                stories.push({
-                    id: doc.id,
-                    ...data,
-                    createdAt: data.createdAt?.toDate(),
-                    updatedAt: data.updatedAt?.toDate()
+                // Process results...
+                const stories = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    stories.push({
+                        id: doc.id,
+                        ...data,
+                        createdAt: data.createdAt?.toDate(),
+                        updatedAt: data.updatedAt?.toDate()
+                    });
                 });
-            });
 
-            this.stories = stories;
-            showLoading(false);
+                this.stories = stories;
+                showLoading(false);
+                return stories;
 
-            return stories;
+            } catch (indexError) {
+                console.warn('Index not ready, falling back to client-side sorting:', indexError);
+
+                // Fallback: Get all stories and sort client-side
+                const simpleQuery = storiesCollection
+                    .where('status', '==', 'active')
+                    .limit(50);
+
+                const snapshot = await simpleQuery.get();
+                let stories = [];
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    stories.push({
+                        id: doc.id,
+                        ...data,
+                        createdAt: data.createdAt?.toDate(),
+                        updatedAt: data.updatedAt?.toDate()
+                    });
+                });
+
+                // Client-side filtering and sorting
+                if (filters.genre) {
+                    stories = stories.filter(story => story.genre === filters.genre);
+                }
+
+                switch (filters.sort) {
+                    case 'oldest':
+                        stories.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+                        break;
+                    case 'popular':
+                        stories.sort((a, b) => (b.views || 0) - (a.views || 0));
+                        break;
+                    case 'newest':
+                    default:
+                        stories.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                        break;
+                }
+
+                this.stories = stories;
+                showLoading(false);
+                showToast('Using temporary sorting while database optimizes...', 'warning');
+                return stories;
+            }
 
         } catch (error) {
             showLoading(false);
-            console.error('Error in get Stories: ', error);
+            console.error('Error in getStories: ', error);
             const message = handleFirebaseError(error);
             showToast(message, 'error');
             return [];
@@ -206,6 +253,7 @@ class StoryManager {
 
         } catch (error) {
             showLoading(false);
+            console.error('error in get story: ', error);
             const message = handleFirebaseError(error);
             showToast(message, 'error');
             throw error;
@@ -223,11 +271,11 @@ class StoryManager {
             const query = storiesCollection.where('status', '==', 'active')
                 .orderBy('title')
                 .startAt(searchTerm.toLowerCase())
-                .endAt(searchTerm.toLowerCase())
+                .endAt(searchTerm.toLowerCase() + '\uf8ff')
                 .limit(20);
 
             const snapshot = await query.get();
-            const results = []
+            const results = [];
 
             snapshot.forEach(doc => {
                 const data = doc.data();
@@ -239,10 +287,12 @@ class StoryManager {
                 });
             });
 
+            showLoading(false);
             return results;
 
         } catch (error) {
             showLoading(false);
+            console.error('error in search: ', error);
             const message = handleFirebaseError(error);
             showToast(message, 'error');
             return [];
@@ -252,9 +302,12 @@ class StoryManager {
     async likeStory(storyId) {
         try {
             await storiesCollection.doc(storyId).update({
-                likes: firebase.firebase.FieldValue.increment(1)
+                likes: firebase.firestore.FieldValue.increment(1)
             });
+
+            showToast('Story liked', 'success');
         } catch (error) {
+            console.error('error in like: ', error);
             const message = handleFirebaseError(error);
             showToast(message, 'error');
         }
@@ -269,6 +322,7 @@ class StoryManager {
                 type: 'story'
             });
         } catch (error) {
+            console.error('error in report: ', error);
             const message = handleFirebaseError(error);
             showToast(message, 'error');
         }
@@ -289,7 +343,7 @@ class StoryManager {
             });
 
             //get featured stories count
-            const featuredSnapshot = await storiesSnapshot
+            const featuredSnapshot = await storiesCollection
                 .where('featured', '==', true)
                 .where('status', '==', 'active')
                 .get();
@@ -302,6 +356,7 @@ class StoryManager {
                 featuredStories
             };
         } catch (error) {
+            console.error('error in statistics: ', error);
             const message = handleFirebaseError(error);
             showToast(message, 'error');
             return {
